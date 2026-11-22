@@ -1,0 +1,15 @@
+# Grundeinstellungen fürs Reisetagebuch
+# Titel und Untertitel darfst du hier ändern.
+
+title: "Emilians Reisetagebuch"
+untertitel: "Mein (fast) komplett wahrer Reisebericht. Ehrenwort*"
+
+lang: de
+timezone: Europe/Zurich
+markdown: kramdown
+
+# Diese Dateien gehören nicht auf die Webseite
+exclude:
+  - README.md
+  - ANLEITUNG.md
+  - VORLAGE.md

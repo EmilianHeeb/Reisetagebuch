@@ -1,0 +1,158 @@
+---
+layout: null
+---
+{%- assign monate = "Januar,Februar,März,April,Mai,Juni,Juli,August,September,Oktober,November,Dezember" | split: "," -%}
+{%- assign tage = "Sonntag,Montag,Dienstag,Mittwoch,Donnerstag,Freitag,Samstag" | split: "," -%}
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ site.title }}</title>
+<meta name="description" content="{{ site.untertitel }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Rock+Salt&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="heft">
+
+  <header>
+    <h1><span>{{ site.title }}</span></h1>
+    <p>{{ site.untertitel }}</p>
+  </header>
+
+  {%- assign reise = site.posts | reverse -%}
+  {%- assign anzahl_orte = 0 -%}
+  {%- for p in reise -%}
+    {%- if p.koordinaten or p.lat -%}{%- assign anzahl_orte = anzahl_orte | plus: 1 -%}{%- endif -%}
+  {%- endfor -%}
+
+  {% if anzahl_orte > 0 %}
+  <section class="karte-box" aria-label="Karte mit der Reiseroute">
+    <h2>Wo ich überall war</h2>
+    <div id="karte"></div>
+    <div class="zahlen">
+      <span><b id="km">0</b> km (Luftlinie)</span>
+      <span><b id="anzahl-orte">{{ anzahl_orte }}</b> Orte</span>
+      <span><b>{{ site.posts.size }}</b> Einträge</span>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if site.posts.size > 0 %}
+  <nav aria-label="Einträge">
+    <ul class="inhalt">
+      {% for post in reise %}
+      {%- assign mo = post.date | date: "%-m" | minus: 1 -%}
+      <li><a href="#{{ post.slug }}">{{ post.date | date: "%-d." }} {{ monate[mo] | slice: 0, 3 }}{% if post.ort %} · {{ post.ort }}{% endif %}</a></li>
+      {% endfor %}
+    </ul>
+  </nav>
+  {% endif %}
+
+  <section class="eintraege">
+    {% for post in site.posts %}
+    <article class="eintrag" id="{{ post.slug }}">
+      <div class="kopfzeile">
+        {%- assign wt = post.date | date: "%w" | plus: 0 -%}
+        {%- assign mo = post.date | date: "%-m" | minus: 1 -%}
+        <span class="datum">{{ tage[wt] }}, {{ post.date | date: "%-d." }} {{ monate[mo] }} {{ post.date | date: "%Y" }}</span>
+        {% if post.ort %}<span class="ort">{{ post.ort }}</span>{% endif %}
+      </div>
+      <h2>{{ post.title }}</h2>
+      <div class="text">{{ post.content }}</div>
+      {%- if post.laune -%}
+        {%- comment -%} Erste Zahl herausholen: "3", "3 von 10" und "3/10" ergeben alle 3 {%- endcomment -%}
+        {%- assign sterne = post.laune | append: "" | strip | split: " " | first | split: "/" | first | plus: 0 -%}
+        {%- if sterne >= 1 and sterne <= 10 %}
+      <div class="laune" role="img" aria-label="Laune: {{ sterne }} von 10 Sternen">
+        <span class="laune-wort" aria-hidden="true">Laune:</span>
+        <span class="sterne" aria-hidden="true">{% for i in (1..10) %}<span class="stern{% if i <= sterne %} an{% endif %}">★</span>{% endfor %}</span>
+      </div>
+        {%- else %}
+      <span class="laune">Laune: <b>{{ post.laune }}</b></span>
+        {%- endif -%}
+      {%- endif %}
+    </article>
+    {% else %}
+    <p class="leer">Hier steht noch nichts. Der erste Eintrag kommt bald!</p>
+    {% endfor %}
+  </section>
+
+  <footer>Ende. Fortsetzung folgt (wenn das WLAN geht).</footer>
+</main>
+
+{% if anzahl_orte > 0 %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  // Orte aus den Einträgen. "koordinaten" ist ein Wert wie "41.3874, 2.1686"
+  // (direkt aus Google Maps kopiert). Ältere Einträge mit lat/lon gehen auch noch.
+  var orte = [
+    {% for p in reise %}{% if p.koordinaten or p.lat %}{ name: {{ p.ort | default: p.title | jsonify }}, k: {{ p.koordinaten | default: "" | jsonify }}, lat: {{ p.lat | default: "" | jsonify }}, lon: {{ p.lon | default: "" | jsonify }}, id: {{ p.slug | jsonify }} },
+    {% endif %}{% endfor %}
+  ].map(function (o) {
+    if (o.k) {
+      var teile = String(o.k).split(",");
+      o.lat = parseFloat(teile[0]);
+      o.lon = parseFloat(teile[1]);
+    } else {
+      o.lat = parseFloat(o.lat);
+      o.lon = parseFloat(o.lon);
+    }
+    return o;
+  }).filter(function (o) {
+    return isFinite(o.lat) && isFinite(o.lon) && Math.abs(o.lat) <= 90 && Math.abs(o.lon) <= 180;
+  });
+  document.getElementById("anzahl-orte").textContent = orte.length;
+
+  if (window.L && orte.length) {
+    var karte = L.map("karte", { scrollWheelZoom: false });
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 18,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(karte);
+    var punkte = orte.map(function (o) { return [o.lat, o.lon]; });
+    L.polyline(punkte, { color: "#d2453c", weight: 4, dashArray: "10 8", lineCap: "round" }).addTo(karte);
+    orte.forEach(function (o, i) {
+      L.circleMarker([o.lat, o.lon], { radius: 8, color: "#fbfcf7", weight: 2, fillColor: "#2856b8", fillOpacity: 1 })
+        .addTo(karte)
+        .bindTooltip(o.name, { permanent: true, direction: "top", offset: [0, -8], className: "ortsname" })
+        .on("click", function () { location.hash = o.id; });
+    });
+    if (punkte.length === 1) { karte.setView(punkte[0], 9); }
+    else { karte.fitBounds(punkte, { padding: [40, 40] }); }
+
+    // Kilometer zusammenzählen (Luftlinie)
+    var km = 0;
+    for (var i = 1; i < orte.length; i++) {
+      var a = orte[i - 1], b = orte[i], r = Math.PI / 180;
+      var d = Math.sin((b.lat - a.lat) * r / 2) ** 2 +
+              Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin((b.lon - a.lon) * r / 2) ** 2;
+      km += 12742 * Math.asin(Math.sqrt(d));
+    }
+    document.getElementById("km").textContent = Math.round(km).toLocaleString("de-CH");
+  }
+</script>
+{% endif %}
+
+<script>
+  // Fotos aus den Einträgen als eingeklebte Bilder darstellen.
+  // Der Text in den eckigen Klammern wird zur Bildunterschrift.
+  document.querySelectorAll(".text img").forEach(function (img) {
+    var fig = document.createElement("figure");
+    fig.className = "foto";
+    img.replaceWith(fig);
+    img.loading = "lazy";
+    fig.appendChild(img);
+    if (img.alt) {
+      var cap = document.createElement("figcaption");
+      cap.textContent = img.alt;
+      fig.appendChild(cap);
+    }
+  });
+</script>
+</body>
+</html>
