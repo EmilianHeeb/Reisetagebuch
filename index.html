@@ -82,6 +82,25 @@ layout: null
     {% endfor %}
   </section>
 
+  {% if site.nachricht_key and site.nachricht_key != "" %}
+  <section class="briefkasten" id="briefkasten" aria-labelledby="bk-titel">
+    <h2 id="bk-titel">Schreib mir was!</h2>
+    <p class="bk-hinweis">Deine Nachricht erscheint nicht auf der Seite. Sie kommt direkt bei uns an.</p>
+    <form id="bk-form" action="https://api.web3forms.com/submit" method="POST">
+      <input type="hidden" name="access_key" value="{{ site.nachricht_key }}">
+      <input type="hidden" name="subject" value="Neue Nachricht: {{ site.title }}">
+      <input type="hidden" name="from_name" value="{{ site.title }}">
+      <input type="checkbox" name="botcheck" class="bk-falle" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <label for="bk-name">Dein Vorname</label>
+      <input id="bk-name" name="name" type="text" required maxlength="40" autocomplete="given-name">
+      <label for="bk-text">Deine Nachricht</label>
+      <textarea id="bk-text" name="message" required maxlength="2000" rows="5"></textarea>
+      <button type="submit" id="bk-knopf">Ab die Post! ✈</button>
+      <p class="bk-status" id="bk-status" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+  {% endif %}
+
   <footer>Ende. Fortsetzung folgt (wenn das WLAN geht).</footer>
 </main>
 
@@ -153,6 +172,40 @@ layout: null
       fig.appendChild(cap);
     }
   });
+</script>
+<script>
+  // Briefkasten: Nachricht an Web3Forms schicken, ohne die Seite zu verlassen
+  (function () {
+    var form = document.getElementById("bk-form");
+    if (!form) return;
+    var knopf = document.getElementById("bk-knopf");
+    var status = document.getElementById("bk-status");
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var daten = Object.fromEntries(new FormData(form));
+      if (daten.botcheck) return; // Spam-Roboter
+      knopf.disabled = true;
+      status.className = "bk-status";
+      status.textContent = "Startklar machen …";
+      fetch(form.action, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(daten)
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (antwort) {
+          if (!antwort.success) throw new Error(antwort.message);
+          form.reset();
+          status.className = "bk-status ok";
+          status.textContent = "Zack, weg! Deine Nachricht fliegt schon.";
+        })
+        .catch(function () {
+          status.className = "bk-status fehler";
+          status.textContent = "Das hat leider nicht geklappt. Prüf deine Internetverbindung und versuch es nochmal.";
+        })
+        .finally(function () { knopf.disabled = false; });
+    });
+  })();
 </script>
 </body>
 </html>

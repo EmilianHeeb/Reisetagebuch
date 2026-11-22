@@ -4,6 +4,10 @@
 title: "Emilians Reisetagebuch"
 untertitel: "Mein (fast) komplett wahrer Reisebericht. Ehrenwort*"
 
+# Briefkasten: Hier den Zugangsschlüssel von web3forms.com eintragen.
+# Solange hier nichts steht, wird der Briefkasten nicht angezeigt.
+nachricht_key: "89fee87c-2eac-4c7d-9531-018452283548"
+
 lang: de
 timezone: Europe/Zurich
 markdown: kramdown

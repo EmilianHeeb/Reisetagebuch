@@ -124,6 +124,36 @@ header p { margin: 0; color: var(--bleistift); }
 .leer {
   border: 2px dashed var(--bleistift); border-radius: 12px; padding: 18px; color: var(--bleistift);
 }
+/* Briefkasten: Formular wie ein eingeklebter Notizzettel */
+.briefkasten {
+  border: 3px solid var(--tinte); border-radius: 12px 16px 10px 14px;
+  background: var(--papier); padding: 18px; transform: rotate(-.4deg);
+  box-shadow: 5px 5px 0 var(--tinte);
+}
+.briefkasten h2 { font-family: var(--titel); font-weight: 400; font-size: 1.3rem; margin: 0 0 4px; }
+.bk-hinweis { margin: 0 0 14px; color: var(--bleistift); font-size: 1.1rem; }
+#bk-form { display: flex; flex-direction: column; gap: 6px; }
+#bk-form label { font-size: 1.15rem; margin-top: 6px; }
+#bk-form input[type="text"], #bk-form textarea {
+  font: inherit; font-size: 1.2rem; color: var(--tinte); width: 100%;
+  background: #fff; border: 2px solid var(--tinte); border-radius: 8px 10px 7px 9px; padding: 6px 10px;
+}
+#bk-form textarea { resize: vertical; min-height: 7em; }
+#bk-form input:focus-visible, #bk-form textarea:focus-visible { outline: 3px solid var(--kuli); outline-offset: 1px; }
+#bk-knopf {
+  align-self: flex-start; margin-top: 12px; font: inherit; font-size: 1.25rem; color: var(--tinte); cursor: pointer;
+  background: var(--leuchtstift); border: 2px solid var(--tinte); border-radius: 12px 16px 10px 14px;
+  padding: 4px 18px; box-shadow: 3px 3px 0 var(--tinte); transform: rotate(-1deg);
+}
+#bk-knopf:hover { transform: rotate(-1deg) translate(-1px, -1px); box-shadow: 4px 4px 0 var(--tinte); }
+#bk-knopf:active { transform: rotate(-1deg) translate(2px, 2px); box-shadow: 1px 1px 0 var(--tinte); }
+#bk-knopf:focus-visible { outline: 3px solid var(--kuli); outline-offset: 3px; }
+#bk-knopf:disabled { opacity: .6; cursor: wait; }
+.bk-status { margin: 4px 0 0; min-height: 1.5em; font-size: 1.15rem; }
+.bk-status.ok { color: #1f7a3a; }
+.bk-status.fehler { color: var(--rot); }
+.bk-falle { position: absolute; left: -9999px; }
+
 footer { text-align: center; color: var(--bleistift); font-size: 1.05rem; }
 a:focus-visible { outline: 3px solid var(--kuli); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
