@@ -138,7 +138,7 @@ header p { margin: 0; color: var(--bleistift); }
   font: inherit; font-size: 1.2rem; color: var(--tinte); width: 100%;
   background: #fff; border: 2px solid var(--tinte); border-radius: 8px 10px 7px 9px; padding: 6px 10px;
 }
-#bk-form textarea { resize: vertical; min-height: 7em; }
+#bk-form textarea { resize: vertical; min-height: 12em; }
 #bk-form input:focus-visible, #bk-form textarea:focus-visible { outline: 3px solid var(--kuli); outline-offset: 1px; }
 #bk-knopf {
   align-self: flex-start; margin-top: 12px; font: inherit; font-size: 1.25rem; color: var(--tinte); cursor: pointer;

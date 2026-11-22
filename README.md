@@ -72,6 +72,21 @@ Der Name muss genau stimmen, auch die Endung: `.jpg` ist nicht dasselbe wie `.JP
 - Normale Fotos: etwa **1000 Pixel** breit reichen.
 - Handyfotos in voller Grösse machen die Seite langsam.
 
+## Briefkasten (Nachrichten von Lesern)
+
+Unten auf der Seite gibt es ein Formular „Schreib mir was!“. Die Nachrichten erscheinen nicht auf der Seite, sondern kommen per E-Mail an. Das läuft über den Gratis-Dienst [Web3Forms](https://web3forms.com) (250 Nachrichten pro Monat).
+
+**Einrichten:**
+1. Auf [web3forms.com](https://web3forms.com) die E-Mail-Adresse eingeben, an die die Nachrichten gehen sollen, und auf „Create Access Key“ klicken.
+2. Der Zugangsschlüssel kommt per E-Mail (eine lange Zeichenfolge).
+3. In `_config.yml` bei `nachricht_key:` zwischen die Anführungszeichen einfügen:
+   `nachricht_key: "dein-schluessel-hier"`
+4. Speichern. Nach 1–2 Minuten erscheint der Briefkasten auf der Seite.
+
+Solange `nachricht_key` leer ist, wird der Briefkasten nicht angezeigt.
+
+Der Schlüssel darf öffentlich im Repository stehen. Er erlaubt nur, Nachrichten **an** deine Adresse zu schicken. Deine E-Mail-Adresse selbst steht nirgends auf der Seite.
+
 ## Veröffentlichen
 
 Settings → Pages → Source „Deploy from a branch“ → Branch `main`, Ordner `/ (root)` → Save.
